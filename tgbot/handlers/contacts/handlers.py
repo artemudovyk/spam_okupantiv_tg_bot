@@ -28,6 +28,7 @@ def command_contact(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         print(user)
     
+    print(user, contact)
     update.message.reply_text(text=f'Давай почнемо з:\n{contact.phone_number}\n@{contact.username}', reply_markup=make_keyboard_for_contact_command())
     
     

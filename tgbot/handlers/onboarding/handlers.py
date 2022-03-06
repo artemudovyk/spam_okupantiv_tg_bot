@@ -16,6 +16,8 @@ def command_start(update: Update, context: CallbackContext) -> None:
         text = static_text.start_created.format(first_name=u.first_name)
     else:
         text = static_text.start_not_created.format(first_name=u.first_name)
+        
+    print(u, text)
 
     update.message.reply_text(text=text,
                               reply_markup=make_keyboard_for_start_command())
