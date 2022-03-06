@@ -15,6 +15,32 @@ from utils.models import CreateUpdateTracker, nb, CreateTracker, GetOrNoneManage
 class AdminUserManager(Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_admin=True)
+    
+
+class Contact(models.Model):
+    phone_number = models.CharField(max_length=20, primary_key=True)
+    username = models.CharField(max_length=50, blank=True, null=True)
+    # source_group = models.ForeignKey(TelegramGroup, on_delete=models.CASCADE)
+    repeats = models.IntegerField(default=0)
+    failed_repeats = models.IntegerField(default=0)
+    is_completed = models.BooleanField(default=False, editable=False)
+    
+    class Meta:
+        ordering = ['-failed_repeats', 'repeats']
+    
+    def __str__(self):
+        if self.username:
+            return f'{self.phone_number} {self.username}'
+        else:
+            return f'{self.phone_number}'
+    
+    def add_repeat(self):
+        self.repeats += 1
+        self.save()
+        
+    def add_failed_repeat(self):
+        self.failed_repeats += 1
+        self.save()
 
 
 class User(CreateUpdateTracker):
@@ -24,7 +50,10 @@ class User(CreateUpdateTracker):
     last_name = models.CharField(max_length=256, **nb)
     language_code = models.CharField(max_length=8, help_text="Telegram client's lang", **nb)
     deep_link = models.CharField(max_length=64, **nb)
-
+    
+    contacts_processed = models.ManyToManyField(Contact)
+    success_num = models.IntegerField(default=0, editable=False)
+        
     is_blocked_bot = models.BooleanField(default=False)
 
     is_admin = models.BooleanField(default=False)
@@ -34,6 +63,14 @@ class User(CreateUpdateTracker):
 
     def __str__(self):
         return f'@{self.username}' if self.username is not None else f'{self.user_id}'
+        
+    def add_contact_to_processed(self, contact: Contact):
+        self.contacts_processed.add(contact)
+        self.save()
+    
+    def increment_success_num(self):
+        self.success_num += 1
+        self.save()
 
     @classmethod
     def get_user_and_created(cls, update: Update, context: CallbackContext) -> Tuple[User, bool]:
@@ -93,3 +130,10 @@ class Location(CreateTracker):
             save_data_from_arcgis(latitude=self.latitude, longitude=self.longitude, location_id=self.pk)
         else:
             save_data_from_arcgis.delay(latitude=self.latitude, longitude=self.longitude, location_id=self.pk)
+
+
+class TelegramGroup(models.Model):
+    name = models.CharField(max_length=50, primary_key=True)      
+    
+    def __str__(self):
+        return f"group: {self.name}"  

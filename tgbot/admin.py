@@ -4,8 +4,7 @@ from django.shortcuts import render
 
 from dtb.settings import DEBUG
 
-from tgbot.models import Location
-from tgbot.models import User
+from tgbot.models import Location, User, TelegramGroup, Contact
 from tgbot.forms import BroadcastForm
 
 from tgbot.tasks import broadcast_message
@@ -52,3 +51,13 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_id', 'created_at']
+
+
+@admin.register(TelegramGroup)
+class TelegramGroupAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    pass
