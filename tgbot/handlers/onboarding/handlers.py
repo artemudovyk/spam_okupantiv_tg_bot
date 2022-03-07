@@ -10,6 +10,7 @@ from tgbot.models import User
 from tgbot.handlers.onboarding.keyboards import make_keyboard_for_start_command
 
 def command_start(update: Update, context: CallbackContext) -> None:
+    print('test')
     u, created = User.get_user_and_created(update, context)
 
     if created:
