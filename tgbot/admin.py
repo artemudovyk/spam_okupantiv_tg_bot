@@ -60,4 +60,4 @@ class TelegramGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['phone_number', 'username', 'repeats', 'failed_repeats']
