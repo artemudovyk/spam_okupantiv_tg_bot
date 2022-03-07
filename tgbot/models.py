@@ -25,8 +25,9 @@ class Contact(models.Model):
     failed_repeats = models.IntegerField(default=0)
     is_completed = models.BooleanField(default=False, editable=False)
     
+    
     class Meta:
-        ordering = ['-failed_repeats', 'repeats']
+        ordering = ['repeats', 'failed_repeats']
     
     def __str__(self):
         if self.username:

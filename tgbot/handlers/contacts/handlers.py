@@ -27,6 +27,7 @@ def command_contact(update: Update, context: CallbackContext) -> None:
     
     try:
         contact = _get_new_contact(user)
+        contact.add_repeat()
     except Exception as e:
         print(traceback.format_exc())
     
@@ -44,6 +45,7 @@ def get_contact_onboarding_button(update: Update, context: CallbackContext) -> N
         query.answer()
         
         contact = _get_new_contact(user)
+        contact.add_repeat()
         
         text = _get_text_for_first_contact(contact, user)
         update.callback_query.message.reply_text(text=text, reply_markup=make_keyboard_for_contact_command())
@@ -95,6 +97,7 @@ def contact_failed(update: Update, context: CallbackContext) -> None:
         # Add successful repeat to the current contact
         phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': +')[-1]
         contact = Contact.objects.get(phone_number=phone_number)
+        contact.add_repeat()
         contact.add_failed_repeat()
         user.add_contact_to_processed(contact)
         
@@ -130,6 +133,7 @@ def contact_skip(update: Update, context: CallbackContext) -> None:
         
         print(phone_number)
         contact = Contact.objects.get(phone_number=phone_number)
+        contact.add_repeat()
         contact.add_failed_repeat()
         user.add_contact_to_processed(contact)
         
