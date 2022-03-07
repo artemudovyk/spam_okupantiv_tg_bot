@@ -8,5 +8,6 @@ urlpatterns = [
     path('', views.index, name="index"),
     path('super_secter_webhook/', csrf_exempt(views.TelegramBotWebhookView.as_view())),
     path('post_contact/', views.post_contact, name='post_contact'),
+    path('post_contact_batch/', views.post_contact_batch, name='post_contact_batch'),
     path('get_phone_numbers/', views.get_all_phone_numbers, name='get_all_phone_numbers'),
 ]

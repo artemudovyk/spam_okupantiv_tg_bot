@@ -56,6 +56,21 @@ def post_contact(request):
     return JsonResponse({'success': f'Contact created: {new_contact.phone_number}, {new_contact.username}'})
 
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def post_contact_batch(request):
+    data = json.loads(request.body)
+    users = data['users']
+    for user in users:
+        phone = user['phone']
+        username = user['username']
+    
+        new_contact = Contact(phone_number=phone, username=username)
+        new_contact.save()
+
+    return JsonResponse({'success': f'{len(users)} contacts created'})
+
+
 @require_http_methods(["GET"])
 def get_all_phone_numbers(request):
     all_contacts = Contact.objects.all()
