@@ -9,6 +9,8 @@ from . import static_text
 from tgbot.handlers.utils.info import extract_user_data_from_update
 from tgbot.models import User, Contact
 from .keyboards import make_keyboard_for_contact_command
+from ..onboarding.keyboards import make_keyboard_for_start_command
+import traceback
 
 def command_contact(update: Update, context: CallbackContext) -> None:
     # u, created = User.get_user_and_created(update, context)
@@ -26,10 +28,27 @@ def command_contact(update: Update, context: CallbackContext) -> None:
     try:
         contact = _get_new_contact(user)
     except Exception as e:
-        print(user)
+        print(traceback.format_exc())
     
-    print(user, contact)
-    update.message.reply_text(text=f'Давай почнемо з:\n{contact.phone_number}\n@{contact.username}', reply_markup=make_keyboard_for_contact_command())
+    text = _get_text_for_new_contact(contact, user)
+    update.message.reply_text(text=text, reply_markup=make_keyboard_for_contact_command())
+    
+
+def get_contact_onboarding_button(update: Update, context: CallbackContext) -> None:
+    print('get_contact_onboarding_button')
+    try:
+        user = User.get_user(update, context)
+    
+        # Answer to query
+        query = update.callback_query
+        query.answer()
+        
+        contact = _get_new_contact(user)
+        
+        text = _get_text_for_first_contact(contact, user)
+        update.callback_query.message.reply_text(text=text, reply_markup=make_keyboard_for_contact_command())
+    except Exception as e:
+        print(traceback.format_exc())
     
     
 def contact_success(update: Update, context: CallbackContext) -> None:
@@ -40,7 +59,7 @@ def contact_success(update: Update, context: CallbackContext) -> None:
         user = User.objects.get(user_id=user_id)
         
         # Add successful repeat to the current contact
-        phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': ')[-1]
+        phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': +')[-1]
         contact = Contact.objects.get(phone_number=phone_number)
         contact.add_repeat()
         user.add_contact_to_processed(contact)
@@ -64,7 +83,7 @@ def contact_success(update: Update, context: CallbackContext) -> None:
         new_text = _get_text_for_new_contact(new_contact, user)
         update.callback_query.message.reply_text(text=new_text, reply_markup=make_keyboard_for_contact_command())
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
 
     
 def contact_failed(update: Update, context: CallbackContext) -> None:
@@ -74,7 +93,7 @@ def contact_failed(update: Update, context: CallbackContext) -> None:
         user = User.objects.get(user_id=user_id)
         
         # Add successful repeat to the current contact
-        phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': ')[-1]
+        phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': +')[-1]
         contact = Contact.objects.get(phone_number=phone_number)
         contact.add_failed_repeat()
         user.add_contact_to_processed(contact)
@@ -94,7 +113,7 @@ def contact_failed(update: Update, context: CallbackContext) -> None:
         new_text = _get_text_for_new_contact(new_contact, user)
         update.callback_query.message.reply_text(text=new_text, reply_markup=make_keyboard_for_contact_command())
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
 
 
 def contact_skip(update: Update, context: CallbackContext) -> None:
@@ -104,12 +123,12 @@ def contact_skip(update: Update, context: CallbackContext) -> None:
         user = User.objects.get(user_id=user_id)
         
         # Add successful repeat to the current contact
-        phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': ')[-1]
+        phone_number = update['callback_query']['message']['text'].split('\n')[1].split(': +')[-1]        
+        # username = update['callback_query']['message']['text'].split('\n')[2].split(': @')[-1]
+        # if 'Логін в Telegram' not in username:
+        #     username = ''
         
-        username = update['callback_query']['message']['text'].split('\n')[2].split(': ')[-1]
-        if 'Логін в Telegram' not in username:
-            username = ''
-        
+        print(phone_number)
         contact = Contact.objects.get(phone_number=phone_number)
         contact.add_failed_repeat()
         user.add_contact_to_processed(contact)
@@ -129,7 +148,7 @@ def contact_skip(update: Update, context: CallbackContext) -> None:
         new_text = _get_text_for_new_contact(new_contact, user)
         update.callback_query.message.reply_text(text=new_text, reply_markup=make_keyboard_for_contact_command())
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
     
     
 def _get_new_contact(user: User):
@@ -140,19 +159,26 @@ def _get_new_contact(user: User):
             return None
         return contact
     except Exception as e:
-        print(e) 
+        print(traceback.format_exc()) 
     
     
 def _get_text_for_new_contact(contact, user):
     if contact.username:
-        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: {contact.phone_number}\nЛогін в Telegram: {contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона."
+        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона."
     else:
-        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: {contact.phone_number}\n\nСпробуй знайти його в Telegram (телефон) або в Viber/Whatsapp по номеру телефона."
+        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: +{contact.phone_number}\n\nСпробуй знайти його в Telegram або в Viber/Whatsapp по номеру телефона."
+    
+
+def _get_text_for_first_contact(contact, user):
+    if contact.username:
+        return f"На даний час ти опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно.\nТелефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона."
+    else:
+        return f"На даний час ти опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно.\nТелефон: +{contact.phone_number}\n\nСпробуй знайти його в Telegram або в Viber/Whatsapp по номеру телефона."
     
 
 def _get_text_for_old_contact(contact):
     if contact.username:
-        return f"Телефон: {contact.phone_number}\nЛогін в Telegram: {contact.username}"
+        return f"Телефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}"
     else:
-        return f"Телефон: {contact.phone_number}"
+        return f"Телефон: +{contact.phone_number}"
     

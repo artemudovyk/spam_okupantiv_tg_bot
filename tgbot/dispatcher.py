@@ -36,6 +36,7 @@ def setup_dispatcher(dp):
     """
     # onboarding
     dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
+    dp.add_handler(CallbackQueryHandler(contacts_handlers.get_contact_onboarding_button, pattern=f"^get_contact"))
     
     # new contact
     dp.add_handler(CommandHandler("contact", contacts_handlers.command_contact))

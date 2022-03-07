@@ -8,21 +8,23 @@ from tgbot.handlers.onboarding import static_text
 from tgbot.handlers.utils.info import extract_user_data_from_update
 from tgbot.models import User
 from tgbot.handlers.onboarding.keyboards import make_keyboard_for_start_command
+import traceback
 
 def command_start(update: Update, context: CallbackContext) -> None:
     print('test')
-    u, created = User.get_user_and_created(update, context)
+    try:
+        u, created = User.get_user_and_created(update, context)
 
-    if created:
-        text = static_text.start_created.format(first_name=u.first_name)
-    else:
-        text = static_text.start_not_created.format(first_name=u.first_name)
-        
-    print(u, text)
+        if created:
+            text = static_text.start_created.format(first_name=u.first_name)
+        else:
+            text = static_text.start_not_created.format(first_name=u.first_name)
+            
+        print(u, text)
 
-    update.message.reply_text(text=text,
-                              reply_markup=make_keyboard_for_start_command())
-
+        update.message.reply_text(text=text, reply_markup=make_keyboard_for_start_command(), parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        print(traceback.format_exc())
 
 def secret_level(update: Update, context: CallbackContext) -> None:
     # callback_data: SECRET_LEVEL_BUTTON variable from manage_data.py
