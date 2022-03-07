@@ -164,16 +164,16 @@ def _get_new_contact(user: User):
     
 def _get_text_for_new_contact(contact, user):
     if contact.username:
-        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона."
+        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона, і поширюй правду про те, що відбувається в Україні та про російські злочини."
     else:
-        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: +{contact.phone_number}\n\nСпробуй знайти його в Telegram або в Viber/Whatsapp по номеру телефона."
+        return f"Супер! Ти вже опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно. Давай ще один:\nТелефон: +{contact.phone_number}\n\nСпробуй знайти його в Telegram або в Viber/Whatsapp по номеру телефона, і поширюй правду про те, що відбувається в Україні та про російські злочини."
     
 
 def _get_text_for_first_contact(contact, user):
     if contact.username:
-        return f"На даний час ти опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно.\nТелефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона."
+        return f"На даний час ти опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно.\nТелефон: +{contact.phone_number}\nЛогін в Telegram: @{contact.username}\n\nСпробуй знайти його в Telegram (телефон або логін), або в Viber/Whatsapp по номеру телефона, і поширюй правду про те, що відбувається в Україні та про російські злочини."
     else:
-        return f"На даний час ти опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно.\nТелефон: +{contact.phone_number}\n\nСпробуй знайти його в Telegram або в Viber/Whatsapp по номеру телефона."
+        return f"На даний час ти опрацював(ла) {len(user.contacts_processed.all())} контактів, з яких {user.success_num} - успішно.\nТелефон: +{contact.phone_number}\n\nСпробуй знайти його в Telegram або в Viber/Whatsapp по номеру телефона, і поширюй правду про те, що відбувається в Україні та про російські злочини."
     
 
 def _get_text_for_old_contact(contact):
