@@ -118,7 +118,9 @@ except telegram.error.Unauthorized:
 
 @app.task(ignore_result=True)
 def process_telegram_event(update_json):
+    print('inside process_telegram_event')
     update = Update.de_json(update_json, bot)
+    print(update)
     dispatcher.process_update(update)
 
 

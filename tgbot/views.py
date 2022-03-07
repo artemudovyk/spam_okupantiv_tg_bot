@@ -25,12 +25,14 @@ class TelegramBotWebhookView(View):
     def post(self, request, *args, **kwargs):
         print(request.body)
         if DEBUG:
+            print('process event in debug')
             process_telegram_event(json.loads(request.body))
         else:
             # Process Telegram event in Celery worker (async)
             # Don't forget to run it and & Redis (message broker for Celery)!
             # Read Procfile for details
             # You can run all of these services via docker-compose.yml
+            print('process event')
             process_telegram_event.delay(json.loads(request.body))
 
         # TODO: there is a great trick to send action in webhook response
